@@ -1,0 +1,22 @@
+{
+    "appenders": [
+        {
+            "type": "file",
+            "layout": {
+                "type": "pattern",
+                "pattern": "[%d{yyyy-MM-dd hh:mm:ss}] P(%z) [%p] - %m"
+             },
+            "filename": "./log/logger.log",
+            "maxLogSize": "1000000",
+            "backups": "3"
+        },
+        {
+            "type": "console" ,
+            "layout": {
+                "type": "pattern",
+                "pattern": "[%d{yyyy-MM-dd hh:mm:ss}] P(%z) [%p] - %m"
+            }
+        }
+    ],
+    "replaceConsole":"true"
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CONFIG>
+    <LOG>./config/log4js.xml</LOG>
+    <LIB>./lib</LIB>
+    <MAPPER>../mapper</MAPPER>
+
+    <REDIS>
+        <HOST>127.0.0.1</HOST>
+        <PORT>6379</PORT>
+        <PASSWD>MyRedis01Passwd</PASSWD>
+        <DB>9</DB>
+    </REDIS>
+
+    <MQ>
+        <!--
+        <URL>amqp://guest:guest@127.0.0.1:5672//</URL>
+        -->
+        <URL>127.0.0.1</URL>
+        <ID>guest</ID>
+        <PW>guest</PW>
+        <PORT>5672</PORT>
+        <NAME>location.rpc</NAME>
+        <QNAME>location</QNAME>
+        <EXCHANGE>location</EXCHANGE>
+        <ROUTEKEY>location.demo</ROUTEKEY>
+    </MQ>
+
+    <SERVER>
+        <MODE>HTTP</MODE>
+        <PORT>18990</PORT>
+        <CERT>./cert/cert.pem</CERT>
+        <KEY>./cert/key.pem</KEY>
+    </SERVER>
+
+    <WECHAT>
+        <APPID>wxa111111111111</APPID>
+        <APPSECRET>dddddddddddddddddddd</APPSECRET>
+    </WECHAT>
+</CONFIG>

@@ -1,0 +1,19 @@
+{
+  "name": "location_demo",
+  "version": "1.0.0",
+  "description": "location demo",
+  "main": "main",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kay (kayshaokaiwei@qq.com)",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "log4js": "^0.6.36",
+    "node-uuid": "^1.4.7",
+    "promise": "^7.1.1",
+    "xml2js": "^0.4.16"
+  }
+}

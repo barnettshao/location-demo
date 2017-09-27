@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--<script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.1.min.js"></script>-->
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <title>location_demo</title>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script type="text/javascript">
+        function GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+
+        $(document).ready(function () {
+            var url = '/location/location/';
+
+//            alert(GetQueryString("code"));
+//            alert(window.location.href);
+//            var qstr = GetQueryString("code");
+//            alert(qstr);
+
+            var goodsid = GetQueryString("state");
+            var openid = '';
+
+            $.post(url, {
+                "method": "getopenidbycode",
+                "code": GetQueryString("code")
+            }, function (data) {
+                if (data == '') {
+                    alert('error');
+                    return;
+                }
+                openid = data;
+                alert("微信openid是:" + openid);
+                alert("货物单号是:" + goodsid);
+                $.post(url, {
+                    "method": "getuserinfobyopenid",
+                    "openid": data
+                }, function (data) {
+                    if (data == '') {
+                        alert('error');
+                        return;
+                    }
+                    alert("微信昵称是:" + data);
+
+
+                    $.post(url, {
+                        "method": "getlocationdata",
+                        "goodsid": goodsid
+                    }, function (data_data) {
+                        var json = {
+                            "method": "getjssdksign",
+                            "url": window.location.href
+                        };
+
+                        $.post(url, json, function (data) {
+                            var configjson = data.result;
+                            wx.config({
+                                debug: false,
+                                appId: configjson.appid,
+                                timestamp: configjson.timestamp,
+                                nonceStr: configjson.nonce_str,
+                                signature: configjson.sign,
+                                jsApiList: [
+                                    "getLocation",
+                                    "openLocation"
+                                ]
+                            });
+
+                            wx.ready(function () {
+
+                                if (data_data && data_data.openid != openid) {
+                                    // 存在，则直接返回结果，显示位置
+                                    // 货物坐标信息存在并且此次扫描非信息内的人员
+                                    alert("货物地理位置坐标: 维度:" + data_data.latitude + " - 经度:" + data_data.longitude);
+                                    wx.openLocation({
+                                        latitude: data_data.latitude,
+                                        longitude: data_data.longitude,
+                                        name: '',
+                                        address: '',
+                                        scale: 20,  // 地图缩放级别,整形值,范围从1~28。默认为1 最大
+                                        infoUrl: ''
+                                    })
+                                } else {
+                                    // 不存在，获取位置后，将位置结果写入
+                                    wx.getLocation({
+                                        type: 'gcj02',
+                                        success: function (res) {
+                                            var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                                            var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                                            var speed = res.speed; // 速度，以米/每秒计
+                                            var accuracy = res.accuracy; // 位置精度
+                                            alert("更新货物的地理位置坐标：" + latitude + " - " + longitude);
+
+                                            $.post(url, {
+                                                "method": "postlocationdata",
+                                                "openid": openid,
+                                                "goodsid": goodsid,
+                                                "latitude": latitude,
+                                                "longitude": longitude
+                                            }, function (data) {
+                                                if (data) {
+                                                    alert('写入位置成功');
+                                                } else {
+                                                    alert('写入位置异常');
+                                                }
+                                            })
+                                        },
+                                        fail: function () {
+                                            alert("获取地理位置失败！");
+                                        }
+                                    })
+                                }
+
+                            });
+
+                            wx.error(function () {
+                                alert("获取地理位置失败！");
+                                return;
+                            });
+                        })
+                    });
+
+
+////            $.post('http://cf.smartac.co/cf/location/', json, function (data) {
+////            $.post('/cf/location/', json, function (data) {
+//                    $.post(url, json, function (data) {
+////                alert(JSON.stringify(data));
+//                        if (data.errcode == 0) {
+//                            var configjson = data.result;
+//                            wx.config({
+//                                debug: true,
+//                                appId: configjson.appid,
+//                                timestamp: configjson.timestamp,
+//                                nonceStr: configjson.nonce_str,
+//                                signature: configjson.sign,
+//                                jsApiList: [
+//                                    "getLocation",
+//                                    "openLocation"
+//                                ]
+//                            });
+//                            wx.ready(function () {
+//                                wx.getLocation({
+//                                    type: 'gcj02',
+//                                    success: function (res) {
+//                                        var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+//                                        var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+//                                        var speed = res.speed; // 速度，以米/每秒计
+//                                        var accuracy = res.accuracy; // 位置精度
+//                                        alert("地理位置坐标：" + latitude + " - " + longitude);
+//                                    },
+//                                    fail: function () {
+//                                        alert("获取地理位置失败！");
+//                                    }
+//                                })
+////                        wx.openLocation({
+////                            latitude: 0,
+////                            longitude: 0,
+////                            name: '',
+////                            address: '',
+////                            scale: 1,
+////                            infoUrl: 'www.baidu.com'
+////                        })
+//                            });
+//                            wx.error(function () {
+//                                alert("获取地理位置失败！");
+//                                return;
+//                            });
+//                        }
+//                    })
+
+
+                })
+            });
+        });
+    </script>
+</head>
+<body>
+location demo v1.0
+</body>
+</html>
